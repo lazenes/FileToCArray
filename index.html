@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="Enes BİBER">
+    <meta name="keywords" content="www.enesbiber.com.tr">
+    <title>Dosyadan C stiline dizi dönüştürücü</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Herhangi bir dosyayı bir C stili dizisine gizler. Kodunuza bir dosya (ikili, metin, resim, her neyse) gömmek/saklamak istiyorsanız kullanışlıdır! Ayrıca görüntü renk formatı ve boyut kaplaması yapabilir. Arduino veya diğer gömülü projeleriniz için kullanın.
+" />
+    <!-- Title Page-->
+
+    <!-- Icons font CSS-->
+    <link href="vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
+    <link href="vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
+    <!-- Font special for pages-->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Vendor CSS-->
+    <link href="vendor/select2/select2.min.css" rel="stylesheet" media="all">
+    <link href="vendor/datepicker/daterangepicker.css" rel="stylesheet" media="all">
+
+    <!-- Main CSS-->
+    <link href="css/main.css" rel="stylesheet" media="all">
+	    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js" type="text/javascript"></script>
+    <script src="scripts/arrayUtils.js" type="text/javascript"></script>
+    <script src="scripts/imageConverter.js" type="text/javascript"></script>
+    <script src="scripts/stringConverter.js" type="text/javascript"></script>
+    <script src="scripts/main.js" type="text/javascript"></script>
+</head>
+
+<body>
+    <div class="page-wrapper bg-gra-02 p-t-130 p-b-100 font-poppins">
+        <div class="wrapper wrapper--w680">
+            <div class="card card-4">
+                <div class="card-body">					 
+                    <h2 class="title">Dosyadan C stiline dizi dönüştürücü
+<span class="versionInfo" >
+	v:<span id="versionInfo"></span>
+						</span>
+        <br/>
+        <span class="additionalInfo">
+        <span id="description"></span>
+			<a href="" id="gitLink" target="_blank"></a>
+        </span>
+</h2>           
+                  
+                        <div class="row row-space">
+                            <div class="col-2">
+                                <div class="input-group">
+                                     <label class="label">Dosya Seç: </label>
+					<input class="input--style-4" type="file" id="inFileInput" value="" />
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="input-group">
+                                    <fieldset>
+        <legend>Dosya Bilgileri
+            <div class="tooltip">
+                <span class="tooltiptext">Bu bölüm, yüklenen dosyayla ilgili temel bilgileri içerir.<br/>Bu bir resim ise, piksel cinsinden boyut ve bir önizleme gösterilecektir.
+</span>
+            </div>
+        </legend>
+        <div>
+            <label class="label" for="fiName">isim: </label>
+            <span id="fiName"></span>
+        </div>
+        <div>
+            <label class="label" for="fiSize">Boyut: </label>
+            <span id="fiSize"></span>
+        </div>
+        <div>
+            <label class="label" for="fiType">Tür: </label>
+            <span id="fiType"></span>
+        </div>
+        <div>
+            <label class="label" for="fiLastModifiedDate">Son Düzenleme: </label>
+            <span id="fiLastModifiedDate"></span>
+        </div>
+        <div id="divPreview" class="fileIsImage">
+            <label class="label" for="imgPreview">Ön izleme
+                <div class="tooltip">
+                    <span class="tooltiptext">Resmin etrafındaki gri kenarlık yalnızca görünürlük içindir.<br/>32 pikselden kısa veya 100 pikselden uzunsa, yeniden boyutlandırılacaktır. Yine, görünürlük nedenleriyle.
+</span>
+                </div>
+            </label>
+            <!-- preview image goes here -->
+        </div>
+    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+    <fieldset id="fsConversionOptions">
+        
+       <div class="row row-space">
+			 <div class="col-2">
+           <div class="input-group">
+            <label class="label" for="selFormat">Kodlama Formatı
+                <div class="tooltip">
+                    <span class="tooltiptext">Dizi bildirimi bu formatta bayt içerecektir.
+						<br/>
+						Yani "Hex (0x00)" seçtiyseniz, size şu çıktıyı verecektir:
+<pre>
+static const unsigned char awesomeimage[] = {
+  0x00, 0xff, 0xff
+};
+</pre>                        
+                    </span>
+                </div> 
+				
+            </label>
+            <select  class="input--style-4"  id="selFormat">
+                <option value="HEX0" selected>Hex (0x00)</option>
+                <option value="HEX_SLASH">Hex (\x00)</option>
+                <option value="DEC">Decimal (000)</option>
+                <option value="BIN">Binary (B00000000)</option>
+            </select>
+        </div>
+				 
+				 </div>
+			
+        <div class="fileIsImage">
+			 <div class="col-2">
+                                <div class="input-group">
+            <label class="label" for="cbForceBinary">İkili olarak davran
+                <div class="tooltip">
+                    <span class="tooltiptext">Bu, dönüştürücüye, bir görüntü olmasına rağmen geçerli dosyayı ikili dosya olarak ele almasını söyler.<br/>Her görüntü dönüştürme seçeneği devre dışı bırakılır.</span>
+                </div>
+            </label>
+            <input type="checkbox" id="cbForceBinary" />
+        </div>
+			</div> 
+									 </div>
+							</div>								 
+        <hr class="fileIsImage"/>
+        <div class="fileIsImage">
+           	 <div class="col-2">
+                                <div class="input-group">
+			<label class="label" id="lblPaletteMod" for="cbPaletteMod">Palet modu
+                <div class="tooltip">
+                    <span class="tooltiptext">Bu, görüntünün çıktı paleti biçimini kontrol eder<br/>Bununla ilgili daha fazla bilgi için lütfen bkz. <a href="https://en.wikipedia.org/wiki/Color_depth" target="_blank">renk derinliği üzerine WikiPedia makalesi</a></span>
+                </div>
+            </label>
+            <select id="cbPaletteMod" class="imageConversionOption input--style-4">
+                <option value="32">32 bit RGBA (4bytes/pixel)</option>
+                <option value="24" selected>24bit RGB (3bytes/pixel)</option>
+                <option value="16">16bit RRRRRGGGGGGBBBBB (2byte/pixel)</option>
+                <option value="15">15bit RRRRRGGGGGBBBBBA (2byte/pixel)</option>
+                <option value="8">8bit RRRGGGBB (1byte/pixel)</option>
+                <option value="8G">8bit grayscale (1byte/pixel)</option>
+                <option value="1">1bit line art (1bit/pixel)</option>
+            </select>
+        </div>
+			</div>
+									 </div>
+        <div class="fileIsImage row row-space">
+			
+				 <div class="col-2">
+      <div class="input-group">
+            <label class="label" for="txtResizeX">Yeniden Boyutlandır
+                <div class="tooltip">
+                    <span class="tooltiptext">
+Resmi orijinal en boy oranını koruyarak yeniden boyutlandırmak için boyut kutularından yalnızca birini doldurun.<br/>Boyutu değiştirmek istemiyorsanız ikisini de boş tutun.</span>
+                </div>
+            </label>
+            <input type="text" id="txtResizeX" class="imageConversionOption shortInput input--style-4" />
+			<input type="text" id="txtResizeY" class="imageConversionOption shortInput input--style-4" />
+			(En boy oranını korumak için yalnızca birini doldurun)
+        </div>
+					 </div>
+        <div class="fileIsImage ">
+			 <div class="col-2">
+                                <div class="input-group">
+            <label class="label" for="cbMultiLine" class="imageConversionOption">Çok satırlı
+                <div class="tooltip">
+                    <span class="tooltiptext">Dizideki baytlar, görüntünün en boy oranıyla kabaca eşleşecek şekilde birden çok satıra bölünecektir.<br/>Tüm baytların tek bir satırda olması için bu seçimi kaldırın.
+</span>
+                </div>
+            </label>
+            <input class="input--style-4" type="checkbox" id="cbMultiLine" class="imageConversionOption" checked />
+        </div> 
+			</div> 
+									 </div>
+        <div class="fileIsImage image1BitModeOnly">
+			 <div class="col-2">
+                                <div class="input-group">
+            <label class="label" for="cbForColumnRead" class="imageConversionOption image1BitModeOnly">
+				Sütun okuma için optimize edin
+
+                <div class="tooltip">
+                    <span class="tooltiptext">Resmi satır satır çizdiğiniz normal modun aksine, her seferinde bir 8 bitlik sütun görüntülemeniz gereken uygulamalar için.<br/><b>Satır okuma optimize edildi:</b><img alt="" src="Images/RowReadOptimized_small.png"/><br/><b>Sütun okuması optimize edildi:</b><img alt="" src="Images/ColumnReadOptimized_small.png"/><br/>Bu, yalnızca 1 bit modunda kullanılabilir!</span>
+                </div> 
+            </label>
+            <input class="input--style-4" type="checkbox" id="cbForColumnRead" class="imageConversionOption image1BitModeOnly" />
+        </div>    
+			</div>   
+		</div>
+      
+    	</div>
+  <div class="row row-space">
+
+						 <div class="col-2">
+                                <div class="input-group">
+									    <label for="cbStatic" class="chkbox">static: </label>
+          
+            <input class="input--style-4" type="checkbox" id="cbStatic" value="static" checked />
+        </div> 
+	  </div>
+									
+
+        <div class="col-2">
+                                <div class="input-group">
+          <label for="cbConst" class="chkbox">const: </label>
+            <input class="input--style-4" type="checkbox" id="cbConst" value="const" checked />
+        </div>
+			</div> 
+									 </div>
+			  <div class="row row-space">
+
+       <div class="col-2">
+                                <div class="input-group">
+            <label class="label" id="lblDataType" for="selDataType">Veri türü</label>
+            <select class="input--style-4" id="selDataType">
+                <option value="byte">byte</option>
+                <option value="char">char</option>
+                <option value="unsigned char" selected>unsigned char</option>
+                <option value="int">int</option>
+                <option value="unsigned int">unsigned int</option>
+                <option value="word">word</option>
+                <option value="long">long</option>
+                <option value="unsigned long">unsigned long</option>
+                <option value="int8_t">int8_t</option>
+                <option value="int16_t">int16_t</option>
+                <option value="int32_t">int32_t</option>
+                <option value="int64_t">int64_t</option>
+                <option value="uint8_t">uint8_t</option>
+                <option value="uint16_t">uint16_t</option>
+                <option value="uint32_t">uint32_t</option>
+                <option value="uint64_t">uint64_t</option>
+            </select>
+        </div>
+				  </div>
+									
+         <div class="col-2">
+                                <div class="input-group">
+									  <label for="cbPROGMEM" class="chkbox">PROGMEM: </label>
+           
+									
+            <input class="input--style-4" type="checkbox" id="cbPROGMEM" value="PROGMEM" checked />
+      </div>
+				  </div>
+		</div>
+										   
+		<div class="row row-space">
+		  <div class="col-2">
+                                <div class="input-group">
+          
+									<label for="cbcsharp" class="chkbox">C # </label>
+            <input class="input--style-4" type="checkbox" id="cbcsharp" value="byte[]"  />
+			  </div>
+			</div>
+         <div class="col-2">
+                                <div class="input-group">
+			
+            <div class="tooltip">
+                <span class="tooltiptext">Bunlar oluşturulan imzayı kontrol eder.<br/>Lütfen hepsinin tüm dillerde anlamlı olmadığını unutmayın!</span>
+            </div> 
+            <span id="spnSignaturePreview" class="signaturePreview">...</span>
+       </div> 
+			</div>
+		</div>
+    </fieldset>
+  </div>
+                         
+                      
+			
+                           
+
+               <fieldset id="fsResult">
+<div class="row row-space">
+		  <div class="col-2">
+                                <div class="input-group">
+			
+        <input  class="btn btn--radius-2 btn--blue" type="button" name="btnCopyToClipboard" id="btnCopyToClipboard" value="Panoya Kopyala" />
+				</div>
+                        </div>
+	<div class="col-2">
+                                <div class="input-group">
+									<a download="download" id="aSaveFile" class="linkButtons">
+			
+				<input  class="btn btn--radius-2 btn--blue" type="button" name="btnSaveFile" id="btnSaveFile" value="Dosyaya Kaydet"  />
+			</a>
+									</div>
+                        </div>
+	 <div class="col-2">
+                                <div class="input-group">
+<a download="download" id="aSaveImage" class="fileIsImage linkButtons">
+	<input type="button" name="btnSaveImage" id="btnSaveImage" value="Resmi Kaydet" class="fileIsImage btn btn--radius-2 btn--blue" />
+			</a>
+        
+									</div>
+                        </div>						</div>
+                       	   
+        <textarea class="input--style-4"  id="txtResult" wrap="off"></textarea>
+        <div id="divResult"></div>
+    </fieldset>
+                           
+                        <div class="p-t-15">
+							
+                            <button class="btn btn--radius-2 btn--blue" name="btnConvert" id="btnConvert"  type="submit">Dönüştür!</button>
+							 <span id="spnStatus"></span>
+                        </div>
+                </div>
+              </div>
+                        </div>
+    <!-- Jquery JS-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <!-- Vendor JS-->
+    <script src="vendor/select2/select2.min.js"></script>
+    <script src="vendor/datepicker/moment.min.js"></script>
+    <script src="vendor/datepicker/daterangepicker.js"></script>
+
+    <!-- Main JS-->
+    <script src="js/global.js"></script>
+
+</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+
+</html>
+<!-- end document-->
